@@ -287,11 +287,6 @@ $taiKhoanArray = $taiKhoanResult ? $taiKhoanResult->fetch_all(MYSQLI_ASSOC) : []
             </div>
         </div>
     </div>
-
-    <button class="hamburger-btn" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i>
-    </button>
-
     <div class="content-wrapper">
         <div class="sidebar">
             <div class="shop-logo">

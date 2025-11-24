@@ -392,9 +392,6 @@ $nhanVienArray = $nhanVienResult ? $nhanVienResult->fetch_all(MYSQLI_ASSOC) : []
 </head>
 
 <body>
-    <button class="hamburger-btn" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i>
-    </button>
     <div id="product-form-overlay" style="display:none;">
     </div>
     <div class="content-wrapper">

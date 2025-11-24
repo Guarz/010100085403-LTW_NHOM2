@@ -218,10 +218,6 @@ $chartData = array_column($monthlyRevenueData, 'revenue');
             </div>
         </div>
     </div>
-
-    <button class="hamburger-btn" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i>
-    </button>
     <div id="product-form-overlay" style="display:none;">
     </div>
 

@@ -272,11 +272,6 @@ $totalOrders = $gioHangResult ? $gioHangResult->num_rows : 0;
             <p style="margin-top: 20px; text-align: right; font-weight: bold;">Tổng tiền đơn hàng: <span id="modalTongTien"></span> VNĐ</p>
         </div>
     </div>
-
-    <button class="hamburger-btn" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i>
-    </button>
-
     <div class="content-wrapper">
         <div class="sidebar">
             <div class="shop-logo">
