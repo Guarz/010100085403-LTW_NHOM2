@@ -1,6 +1,6 @@
 <?php
 ini_set('session.gc_maxlifetime', 3600);
-session_set_cookie_params(3600); 
+session_set_cookie_params(3600);
 
 session_start();
 require_once '../DatabaseManager.php';
@@ -16,10 +16,10 @@ if (isset($_POST['action']) || isset($_GET['ajax'])) {
         echo json_encode(['success' => false, 'message' => 'Lỗi: Chưa đăng nhập.']);
         exit();
     }
-    
+
     if (isset($_POST['action'])) {
         $action = $_POST['action'];
-        
+
         if ($action === 'delete' && isset($_POST['MaKH'])) {
             $maKH = $_POST['MaKH'];
             if ($dbManager->deleteKhachHang($maKH)) {
@@ -41,24 +41,24 @@ if (isset($_POST['action']) || isset($_GET['ajax'])) {
             }
             exit();
         }
-        
+
         if (($action === 'update' || $action === 'add') &&
             isset($_POST['HoTen'], $_POST['NgaySinh'], $_POST['DT'], $_POST['Email'])
         ) {
             $hoTen = $_POST['HoTen'];
             $ngaySinh = $_POST['NgaySinh'];
-            $sdt = $_POST['DT']; 
+            $sdt = $_POST['DT'];
             $email = $_POST['Email'];
 
             $success = false;
 
             if ($action === 'update') {
-                $maKH = $_POST['MaKH'] ?? null; 
+                $maKH = $_POST['MaKH'] ?? null;
                 if ($maKH) {
                     $success = $dbManager->updateKhachHang($maKH, $hoTen, $ngaySinh, $sdt, $email);
                 }
                 $msg = 'Cập nhật khách hàng thành công.';
-            } else { 
+            } else {
                 $success = $dbManager->addKhachHang($hoTen, $ngaySinh, $sdt, $email);
                 $msg = 'Thêm khách hàng thành công.';
             }
@@ -66,12 +66,6 @@ if (isset($_POST['action']) || isset($_GET['ajax'])) {
             if ($success) {
                 echo json_encode(['success' => true, 'message' => $msg]);
             } else {
-                $errorMsg = 'Lỗi: Thao tác thất bại.';
-                if ($dbManager->db->errno == 1062) {
-                    $errorMsg = 'Lỗi: Mã KH, SĐT hoặc Email đã tồn tại (nếu các trường đó có ràng buộc UNIQUE).';
-                } else {
-                    $errorMsg = 'Lỗi CSDL: ' . $dbManager->db->error;
-                }
                 echo json_encode(['success' => false, 'message' => $errorMsg]);
             }
             exit();
@@ -107,23 +101,123 @@ $stats = $dbManager->getCustomerStats();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <link rel="stylesheet" href="../chủ/style.css" />
     <style>
-        .stats-grid { display: flex; gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-grow: 1; border-left: 5px solid #e91e63; }
-        .stat-card strong { font-size: 32px; color: #e91e63; }
-        .stat-card p { color: #888; font-size: 14px; }
-        .stat-card .icon-box { font-size: 30px; color: #ff66a3; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.4); justify-content: center; align-items: center; }
-        .modal-content { background-color: #fefefe; padding: 20px; border-radius: 10px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); }
-        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
-        .customer-list table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
-        .customer-list th, .customer-list td { border: 1px solid #eee; padding: 12px; text-align: left; }
-        .customer-list th { background-color: #f8f8f8; color: #333; }
-        .action-btn { padding: 8px 15px; border: none; border-radius: 20px; cursor: pointer; font-weight: 600; transition: background 0.2s; font-size: 13px; margin-left: 5px; }
-        .edit-btn { background-color: #ff66a3; color: white; }
-        .edit-btn:hover { background-color: #e91e63; }
-        .delete-btn { background-color: #e74c3c; color: white; }
-        .delete-btn:hover { background-color: #c0392b; }
-        .filter-section .action-btn { border-radius: 8px; }
+        .stats-grid {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-grow: 1;
+            border-left: 5px solid #e91e63;
+        }
+
+        .stat-card strong {
+            font-size: 32px;
+            color: #e91e63;
+        }
+
+        .stat-card p {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .stat-card .icon-box {
+            font-size: 30px;
+            color: #ff66a3;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .customer-list table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .customer-list th,
+        .customer-list td {
+            border: 1px solid #eee;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .customer-list th {
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+            font-size: 13px;
+            margin-left: 5px;
+        }
+
+        .edit-btn {
+            background-color: #ff66a3;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background-color: #e91e63;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .filter-section .action-btn {
+            border-radius: 8px;
+        }
     </style>
 </head>
 
@@ -160,7 +254,7 @@ $stats = $dbManager->getCustomerStats();
             </form>
         </div>
     </div>
-    
+
     <button class="hamburger-btn" onclick="toggleSidebar()">
         <i class="fas fa-bars"></i>
     </button>
@@ -285,75 +379,76 @@ $stats = $dbManager->getCustomerStats();
         </div>
     </footer>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const customerModal = document.getElementById('customerModal');
-        const customerForm = document.getElementById('customer-form');
-        const customerTableBody = document.getElementById('customer-table'); 
-        function openModal(action, data = {}) {
-            customerForm.reset();
-            document.getElementById('form-action-type').value = action;
-            document.getElementById('modalTitle').textContent = action === 'add' ? 'Thêm Khách hàng mới' : 'Sửa Khách hàng';
+        document.addEventListener('DOMContentLoaded', function() {
+            const customerModal = document.getElementById('customerModal');
+            const customerForm = document.getElementById('customer-form');
+            const customerTableBody = document.getElementById('customer-table');
 
-            const maKHGroup = document.getElementById('ma-kh-group');
-            const maKHInput = document.getElementById('customer-id');
+            function openModal(action, data = {}) {
+                customerForm.reset();
+                document.getElementById('form-action-type').value = action;
+                document.getElementById('modalTitle').textContent = action === 'add' ? 'Thêm Khách hàng mới' : 'Sửa Khách hàng';
 
-            if (action === 'update') {
-                maKHGroup.style.display = 'block';
-                maKHInput.readOnly = true; 
-                maKHInput.required = true;
+                const maKHGroup = document.getElementById('ma-kh-group');
+                const maKHInput = document.getElementById('customer-id');
 
-                maKHInput.value = data.MaKH;
-                document.getElementById('customer-name').value = data.HoTen;
-                document.getElementById('customer-dob').value = data.NgaySinh ? new Date(data.NgaySinh).toISOString().substring(0, 10) : '';
-                document.getElementById('customer-phone').value = data.DT || ''; 
-                document.getElementById('customer-email').value = data.Email;
-            } else { 
-                maKHGroup.style.display = 'none'; 
-                maKHInput.readOnly = false;
-                maKHInput.required = false;
-                maKHInput.value = ''; 
-            }
-            customerModal.style.display = 'flex';
-        }
+                if (action === 'update') {
+                    maKHGroup.style.display = 'block';
+                    maKHInput.readOnly = true;
+                    maKHInput.required = true;
 
-        function closeModal() {
-            customerModal.style.display = 'none';
-        }
-        
-        window.onclick = function(event) {
-            if (event.target == customerModal) {
-                closeModal();
-            }
-        }
-
-        window.openModal = openModal; 
-        window.closeModal = closeModal;
-        
-        function toggleSidebar() {
-            const body = document.body;
-            body.classList.toggle("sidebar-visible");
-        }
-        window.toggleSidebar = toggleSidebar; 
-
-        function logoutConfirm() {
-            if (confirm("Bạn có chắc chắn muốn đăng xuất khỏi hệ thống không?")) {
-                const loginPage = "../Role_login.php";
-                window.location.replace(loginPage);
-            }
-        }
-        window.logoutConfirm = logoutConfirm; 
-
-        customerForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const action = document.getElementById('form-action-type').value;
-            const formData = new URLSearchParams(new FormData(customerForm));
-            formData.append('action', action);
-            
-            if (action === 'add') {
-                formData.delete('MaKH');
+                    maKHInput.value = data.MaKH;
+                    document.getElementById('customer-name').value = data.HoTen;
+                    document.getElementById('customer-dob').value = data.NgaySinh ? new Date(data.NgaySinh).toISOString().substring(0, 10) : '';
+                    document.getElementById('customer-phone').value = data.DT || '';
+                    document.getElementById('customer-email').value = data.Email;
+                } else {
+                    maKHGroup.style.display = 'none';
+                    maKHInput.readOnly = false;
+                    maKHInput.required = false;
+                    maKHInput.value = '';
+                }
+                customerModal.style.display = 'flex';
             }
 
-            fetch('khachhang_nv.php', {
+            function closeModal() {
+                customerModal.style.display = 'none';
+            }
+
+            window.onclick = function(event) {
+                if (event.target == customerModal) {
+                    closeModal();
+                }
+            }
+
+            window.openModal = openModal;
+            window.closeModal = closeModal;
+
+            function toggleSidebar() {
+                const body = document.body;
+                body.classList.toggle("sidebar-visible");
+            }
+            window.toggleSidebar = toggleSidebar;
+
+            function logoutConfirm() {
+                if (confirm("Bạn có chắc chắn muốn đăng xuất khỏi hệ thống không?")) {
+                    const loginPage = "../Role_login.php";
+                    window.location.replace(loginPage);
+                }
+            }
+            window.logoutConfirm = logoutConfirm;
+
+            customerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const action = document.getElementById('form-action-type').value;
+                const formData = new URLSearchParams(new FormData(customerForm));
+                formData.append('action', action);
+
+                if (action === 'add') {
+                    formData.delete('MaKH');
+                }
+
+                fetch('khachhang_nv.php', {
                         method: 'POST',
                         body: formData
                     })
@@ -379,20 +474,41 @@ $stats = $dbManager->getCustomerStats();
                     .catch(error => {
                         console.error('Lỗi lưu dữ liệu:', error);
                     });
-        });
+            });
 
-        if (customerTableBody) {
-            customerTableBody.addEventListener('click', function(e) {
-                const target = e.target.closest('button'); 
-                if (!target) return;
-                
-                const maKH = target.getAttribute('data-id');
-                if (!maKH) return;
+            if (customerTableBody) {
+                customerTableBody.addEventListener('click', function(e) {
+                    const target = e.target.closest('button');
+                    if (!target) return;
 
-                if (target.classList.contains('delete-btn')) {
-                    if (confirm(`Bạn có chắc chắn muốn xóa khách hàng Mã: ${maKH} không? Thao tác này sẽ xóa mọi đơn hàng liên quan.`)) {
+                    const maKH = target.getAttribute('data-id');
+                    if (!maKH) return;
+
+                    if (target.classList.contains('delete-btn')) {
+                        if (confirm(`Bạn có chắc chắn muốn xóa khách hàng Mã: ${maKH} không? Thao tác này sẽ xóa mọi đơn hàng liên quan.`)) {
+                            const formData = new URLSearchParams();
+                            formData.append('action', 'delete');
+                            formData.append('MaKH', maKH);
+
+                            fetch('khachhang_nv.php', {
+                                    method: 'POST',
+                                    body: formData
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    alert(data.message);
+                                    if (data.success) window.location.reload();
+                                })
+                                .catch(error => {
+                                    console.error('Lỗi xóa dữ liệu:', error);
+                                    alert('Có lỗi xảy ra khi xóa. Vui lòng kiểm tra console.');
+                                });
+                        }
+                    }
+
+                    if (target.classList.contains('edit-btn')) {
                         const formData = new URLSearchParams();
-                        formData.append('action', 'delete');
+                        formData.append('action', 'get_details');
                         formData.append('MaKH', maKH);
 
                         fetch('khachhang_nv.php', {
@@ -401,42 +517,21 @@ $stats = $dbManager->getCustomerStats();
                             })
                             .then(response => response.json())
                             .then(data => {
-                                alert(data.message);
-                                if (data.success) window.location.reload();
+                                if (data.success) {
+                                    openModal('update', data.data);
+                                } else {
+                                    alert(data.message);
+                                }
                             })
                             .catch(error => {
-                                console.error('Lỗi xóa dữ liệu:', error);
-                                alert('Có lỗi xảy ra khi xóa. Vui lòng kiểm tra console.');
+                                console.error('Lỗi tải chi tiết:', error);
+                                alert('Có lỗi xảy ra khi tải chi tiết. Vui lòng kiểm tra console.');
                             });
                     }
-                }
-
-                if (target.classList.contains('edit-btn')) {
-                    const formData = new URLSearchParams();
-                    formData.append('action', 'get_details');
-                    formData.append('MaKH', maKH);
-
-                    fetch('khachhang_nv.php', {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                openModal('update', data.data);
-                            } else {
-                                alert(data.message);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Lỗi tải chi tiết:', error);
-                            alert('Có lỗi xảy ra khi tải chi tiết. Vui lòng kiểm tra console.');
-                        });
-                }
-            });
-        }
-    });
-</script>
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

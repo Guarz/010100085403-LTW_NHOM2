@@ -44,7 +44,7 @@ if (isset($_POST['action'])) {
         if ($_POST['action'] === 'update') {
             $success = $dbManager->updateSanPham($maSP, $tenSP, $maLoai, $chiTiet, $donGia, $soLuong, $trangThai, $moTa, $maNV, $anh);
             $msg = 'Cập nhật sản phẩm thành công.';
-        } else { 
+        } else {
             $success = $dbManager->addSanPham($maSP, $tenSP, $maLoai, $chiTiet, $donGia, $soLuong, $trangThai, $moTa, $maNV, $anh);
             $msg = 'Thêm sản phẩm thành công.';
         }
@@ -73,11 +73,11 @@ if (isset($_POST['action'])) {
 }
 
 if (!isset($_SESSION['user_logged_in']) || $_SESSION['user_logged_in'] !== true) {
-    header("Location: ../Role_login.php"); 
+    header("Location: ../Role_login.php");
     exit();
 }
 if ($_SESSION['user_role'] !== 'employee') {
-    header("Location: ../chủ/qlsp.php"); 
+    header("Location: ../chủ/qlsp.php");
     exit();
 }
 

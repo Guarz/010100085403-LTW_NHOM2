@@ -162,7 +162,6 @@ $totalOrders = $gioHangResult ? $gioHangResult->num_rows : 0;
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
-
     </style>
 </head>
 
@@ -289,11 +288,11 @@ $totalOrders = $gioHangResult ? $gioHangResult->num_rows : 0;
 
     <script>
         const orderDetailsModal = document.getElementById('orderDetailsModal');
-        const addOrderModal = document.getElementById('addOrderModal'); 
+        const addOrderModal = document.getElementById('addOrderModal');
         const modalDetails = document.getElementById('modal-details');
 
         function openModal(id) {
-            document.getElementById(id).style.display = "flex"; 
+            document.getElementById(id).style.display = "flex";
         }
 
         function closeModal(id) {

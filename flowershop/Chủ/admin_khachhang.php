@@ -25,8 +25,8 @@ if (isset($_POST['action'])) {
     if (($_POST['action'] === 'update' || $_POST['action'] === 'add') &&
         isset($_POST['HoTen'], $_POST['NgaySinh'], $_POST['DT'], $_POST['Email'])
     ) {
-        $maKH = $_POST['MaKH'] ?? null; 
-        
+        $maKH = $_POST['MaKH'] ?? null;
+
         $hoTen = $_POST['HoTen'];
         $ngaySinh = $_POST['NgaySinh'];
         $dt = $_POST['DT'];
@@ -38,8 +38,8 @@ if (isset($_POST['action'])) {
         if ($_POST['action'] === 'update' && $maKH) {
             $success = $dbManager->updateKhachHang($maKH, $hoTen, $ngaySinh, $dt, $email);
             $msg = 'Cập nhật khách hàng thành công.';
-        } else if ($_POST['action'] === 'add') { 
-            $success = $dbManager->addKhachHang($hoTen, $ngaySinh, $dt, $email); 
+        } else if ($_POST['action'] === 'add') {
+            $success = $dbManager->addKhachHang($hoTen, $ngaySinh, $dt, $email);
             $msg = 'Thêm khách hàng thành công.';
         }
 
@@ -150,8 +150,9 @@ $currentAdminName = $_SESSION['admin_fullname'] ?? 'Quản trị viên chính';
             font-size: 28px;
             font-weight: bold;
         }
-        
-        #customerModal label[for="customer-id"], #customer-id {
+
+        #customerModal label[for="customer-id"],
+        #customer-id {
             display: block;
         }
 
@@ -264,7 +265,7 @@ $currentAdminName = $_SESSION['admin_fullname'] ?? 'Quản trị viên chính';
                 <input type="hidden" id="form-action-type" value="add">
 
                 <label for="customer-id">Mã Khách hàng:</label>
-                <input type="text" id="customer-id" name="MaKH" required> 
+                <input type="text" id="customer-id" name="MaKH" required>
 
                 <label>Họ Tên:</label>
                 <input type="text" id="customer-name" name="HoTen" required>
@@ -428,7 +429,7 @@ $currentAdminName = $_SESSION['admin_fullname'] ?? 'Quản trị viên chính';
             document.getElementById('modalTitle').textContent = action === 'add' ? 'Thêm Khách hàng mới' : 'Sửa Khách hàng';
 
             const maKHInput = document.getElementById('customer-id');
-            const maKHLabel = maKHInput.previousElementSibling; 
+            const maKHLabel = maKHInput.previousElementSibling;
 
             if (action === 'update') {
                 maKHInput.readOnly = true;
@@ -440,9 +441,9 @@ $currentAdminName = $_SESSION['admin_fullname'] ?? 'Quản trị viên chính';
                 document.getElementById('customer-dob').value = data.NgaySinh;
                 document.getElementById('customer-phone').value = data.DT;
                 document.getElementById('customer-email').value = data.Email;
-            } else { 
-                maKHInput.readOnly = false; 
-                maKHInput.value = ''; 
+            } else {
+                maKHInput.readOnly = false;
+                maKHInput.value = '';
                 maKHInput.style.display = 'none';
                 maKHLabel.style.display = 'none';
             }
@@ -461,7 +462,7 @@ $currentAdminName = $_SESSION['admin_fullname'] ?? 'Quản trị viên chính';
 
         function logoutConfirm() {
             if (confirm("Bạn có chắc chắn muốn đăng xuất khỏi hệ thống không?")) {
-                const loginPage = "../login_admin.php"; 
+                const loginPage = "../login_admin.php";
                 window.history.replaceState(null, document.title, loginPage);
                 window.location.replace(loginPage);
                 alert("Đã đăng xuất! Chuyển hướng tới trang Đăng nhập...");
@@ -472,7 +473,7 @@ $currentAdminName = $_SESSION['admin_fullname'] ?? 'Quản trị viên chính';
         customerForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const action = document.getElementById('form-action-type').value;
-            
+
             const formData = new URLSearchParams(new FormData(customerForm));
             formData.append('action', action);
 

@@ -1,29 +1,16 @@
 <?php
 ini_set('session.gc_maxlifetime', 3600);
 session_set_cookie_params(3600);
-// Tên file: Role_login.php (FINAL - BCRYPT LOGIC VỚI REHASHING CHO CẢ NV VÀ ADMIN)
 session_start();
-// Cấu hình CSDL
 const DB_HOST = "localhost";
 const DB_USER = "root";
 const DB_PASS = "";
 const DB_NAME = "flowershop";
 
-// =========================================================
-// HÀM PHỤ TRỢ (HELPER FUNCTION)
-// Kiểm tra xem mật khẩu có phải là BCRYPT hash hợp lệ không.
-// =========================================================
-
-function is_password_hashed($password) {
-    // Kiểm tra xem chuỗi có định dạng của mã băm an toàn ($2y$ hoặc $2a$) không
-    // (Bổ sung kiểm tra độ dài tối thiểu của hash BCrypt)
+function is_password_hashed($password)
+{
     return (strpos($password, '$2y$') === 0 || strpos($password, '$2a$') === 0) && (strlen($password) >= 60);
 }
-
-// =========================================================
-// PHẦN 1: CLASS QUẢN LÝ CSDL VÀ XÁC THỰC
-// =========================================================
-
 class AuthManager
 {
     private $db;
@@ -42,22 +29,12 @@ class AuthManager
         }
         $this->db->set_charset("utf8mb4");
     }
-
-    /**
-     * Hàm tạo mã băm an toàn
-     */
     private function hashPassword($password)
     {
         return password_hash($password, PASSWORD_DEFAULT);
     }
-
-    /**
-     * Phương thức Đăng nhập Nhân viên
-     * TÍCH HỢP HÀM CHECK VÀ TỰ ĐỘNG BĂM LẠI MÃ MỚI
-     */
     public function checkEmployeeLogin($taikhoan, $matkhau_plain)
     {
-        // Truy vấn tài khoản và lấy mật khẩu (có thể là plaintext hoặc hash)
         $sql = "SELECT MaNV AS user_id, HoTen AS user_name, matkhau AS stored_pass
                 FROM nhanvien
                 WHERE taikhoan = ? LIMIT 1";
@@ -74,22 +51,16 @@ class AuthManager
             $employee = $result->fetch_assoc();
             $stored_pass = $employee['stored_pass'];
             $auth_success = false;
-            
-            // 1. THỬ XÁC THỰC BẰNG MÃ BĂM (Nếu đã được băm)
             if (is_password_hashed($stored_pass)) {
                 if (password_verify($matkhau_plain, $stored_pass)) {
                     $auth_success = true;
                 }
-            } 
-            
-            // 2. THỬ XÁC THỰC BẰNG PLAINTEXT 
+            }
             if (!$auth_success && ($matkhau_plain === $stored_pass || $matkhau_plain === '123456')) {
                 $auth_success = true;
             }
 
             if ($auth_success) {
-                // --- REHASHING: BĂM LẠI VÀ CẬP NHẬT CSDL ---
-                // Chỉ chạy nếu mật khẩu chưa được băm hoặc cần nâng cấp độ băm
                 if (!is_password_hashed($stored_pass) || password_needs_rehash($stored_pass, PASSWORD_DEFAULT)) {
                     $new_hash = $this->hashPassword($matkhau_plain);
                     $update_sql = "UPDATE nhanvien SET matkhau = ? WHERE MaNV = ?";
@@ -100,27 +71,18 @@ class AuthManager
                         $update_stmt->close();
                     }
                 }
-                // --- END REHASHING ---
-                
-                unset($employee['stored_pass']); 
-                return $employee; 
+                unset($employee['stored_pass']);
+                return $employee;
             }
         }
-        return false; 
+        return false;
     }
-
-    /**
-     * Phương thức Đăng nhập Quản lý (Admin)
-     * TÍCH HỢP HÀM CHECK VÀ TỰ ĐỘNG BĂM LẠI MÃ MỚI
-     */
     public function checkAdminAccess($password_plain)
     {
-        // Truy vấn cột 'matkhau' (có thể là plaintext hoặc hash) từ bảng 'passadmin'
-        // Tôi sẽ sửa lại truy vấn để lấy mật khẩu từ bảng `admin` và cột `password`
         $sql = "SELECT id, password AS stored_pass
                 FROM admin 
-                WHERE id = 1 LIMIT 1"; // Giả định Admin chính có ID = 1
-        
+                WHERE id = 1 LIMIT 1";
+
         $stmt = $this->db->prepare($sql);
         if (!$stmt) return false;
 
@@ -131,27 +93,21 @@ class AuthManager
         if ($result->num_rows === 1) {
             $record = $result->fetch_assoc();
             $stored_pass = $record['stored_pass'];
-            $admin_id = $record['id']; // Lấy ID của Admin để cập nhật
+            $admin_id = $record['id'];
             $auth_success = false;
-
-            // 1. THỬ XÁC THỰC BẰNG MÃ BĂM
             if (is_password_hashed($stored_pass)) {
                 if (password_verify($password_plain, $stored_pass)) {
                     $auth_success = true;
                 }
-            } 
-            
-            // 2. THỬ XÁC THỰC BẰNG PLAINTEXT 
+            }
             if (!$auth_success && ($password_plain === $stored_pass || $password_plain === 'adminpass')) {
                 $auth_success = true;
             }
 
             if ($auth_success) {
-                // --- REHASHING: BĂM LẠI VÀ CẬP NHẬT CSDL ---
                 if (!is_password_hashed($stored_pass) || password_needs_rehash($stored_pass, PASSWORD_DEFAULT)) {
                     $new_hash = $this->hashPassword($password_plain);
-                    // Cập nhật mật khẩu trong bảng 'admin'
-                    $update_sql = "UPDATE admin SET password = ? WHERE id = ?"; 
+                    $update_sql = "UPDATE admin SET password = ? WHERE id = ?";
                     $update_stmt = $this->db->prepare($update_sql);
                     if ($update_stmt) {
                         $update_stmt->bind_param("si", $new_hash, $admin_id);
@@ -159,37 +115,28 @@ class AuthManager
                         $update_stmt->close();
                     }
                 }
-                // --- END REHASHING ---
-                
-                // Trả về thông tin cơ bản của Admin
                 return [
-                    'user_name' => 'Admin', 
+                    'user_name' => 'Admin',
                     'success' => true
                 ];
             }
         }
-        
+
         return false;
     }
 
     function __destruct()
     {
-        if ($this->db && $this->db->ping()) {
-            $this->db->close();
-        }
+        $this->db->close();
     }
 }
-
-// =========================================================
-// PHẦN 2: XỬ LÝ ĐĂNG NHẬP (PHP POST Request Handler)
-// =========================================================
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
     $authManager = new AuthManager();
     $action = $_POST['action'];
     $response = ['success' => false, 'message' => 'Lỗi xác thực không xác định.'];
 
     $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? ''; 
+    $password = $_POST['password'] ?? '';
 
     if ($action === 'employee_login') {
         $employeeInfo = $authManager->checkEmployeeLogin($username, $password);
@@ -200,20 +147,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
             $_SESSION['user_name'] = $employeeInfo['user_name'];
             $_SESSION['user_id'] = $employeeInfo['user_id'];
 
-            $target_redirect = 'nhanvien/donhang_nhanvien.php'; 
+            $target_redirect = 'nhanvien/donhang_nhanvien.php';
             $response = ['success' => true, 'redirect' => $target_redirect];
         } else {
             $response['message'] = "Tên đăng nhập hoặc mật khẩu Nhân viên không đúng.";
         }
-    } elseif ($action === 'admin_login') { 
+    } elseif ($action === 'admin_login') {
         $adminInfo = $authManager->checkAdminAccess($password);
 
         if ($adminInfo && $adminInfo['success']) {
             $_SESSION['user_logged_in'] = true;
             $_SESSION['user_role'] = 'admin';
-            $_SESSION['admin_fullname'] = $adminInfo['user_name']; 
+            $_SESSION['admin_fullname'] = $adminInfo['user_name'];
 
-            $target_redirect = 'login_admin.php'; 
+            $target_redirect = 'login_admin.php';
             $response = ['success' => true, 'redirect' => $target_redirect];
         } else {
             $response['message'] = "Mật khẩu Quản lý không đúng.";
@@ -224,9 +171,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
     echo json_encode($response);
     exit();
 }
-// =========================================================
-// PHẦN 3: GIAO DIỆN HTML/CSS/JS (GIỮ NGUYÊN)
-// =========================================================
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -237,7 +181,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
     <title>Lựa Chọn Vai Trò - Hoa Tươi Online</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <style>
-        /* CSS GIỮ NGUYÊN */
         :root {
             --primary-pink: #e91e63;
             --accent-glow: #ff66a3;
@@ -303,7 +246,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
             transform: translateY(20px);
         }
 
-        /* --- Vai trò Selection --- */
         .role-selection {
             display: flex;
             flex-direction: column;
@@ -338,7 +280,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
             font-size: 1.2rem;
         }
 
-        /* --- Auth Forms (Login/Register) --- */
         .auth-view {
             padding-top: 10px;
             animation: fadeIn 0.5s ease;
@@ -436,7 +377,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
 
 <body>
     <div class="container" id="main-container">
-
         <div id="role-view" class="form-view">
             <p>Vui lòng chọn vai trò của bạn:</p>
             <div class="role-selection">
@@ -448,14 +388,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                 </button>
             </div>
         </div>
-
         <div id="employee-auth-view" class="form-view hidden auth-view">
             <div class="back-btn" onclick="showForm('role')">
                 <i class="fa-solid fa-arrow-left"></i> Quay lại
             </div>
             <div class="auth-form-container">
                 <h2 id="employee-auth-title">Đăng Nhập Nhân Viên</h2>
-
                 <div id="employee-login-view">
                     <form id="employee-login-form">
                         <div class="input-group">
@@ -476,17 +414,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                     </form>
                     <p id="employee-auth-error" class="error-message hidden"></p>
                 </div>
-
             </div>
         </div>
-
         <div id="admin-auth-view" class="form-view hidden auth-view">
             <div class="back-btn" onclick="showForm('role')">
                 <i class="fa-solid fa-arrow-left"></i> Quay lại
             </div>
             <div class="auth-form-container">
                 <h2 id="admin-auth-title">Đăng Nhập Quản Lý</h2>
-                
                 <div id="admin-login-view">
                     <form id="admin-login-form">
                         <div class="input-group">
@@ -496,23 +431,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                                 <i class="fa-solid fa-lock"></i>
                             </div>
                         </div>
-                        <input type="hidden" name="username" value="admin_user"> 
+                        <input type="hidden" name="username" value="admin_user">
                         <button type="submit" class="btn-submit">Đăng Nhập Quản Lý</button>
                     </form>
                     <p id="admin-login-error" class="error-message hidden"></p>
                 </div>
             </div>
         </div>
-
     </div>
-
     <script>
-        // --- LOGIC CHUYỂN ĐỔI FORM ---
-
-        const views = ['role', 'employee-auth', 'admin-auth']; 
+        const views = ['role', 'employee-auth', 'admin-auth'];
         let currentView = 'role';
 
-        // Chuyển đổi giữa các View chính
         function showForm(targetView) {
             views.forEach(viewId => {
                 const element = document.getElementById(viewId + '-view');
@@ -529,34 +459,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                 }
             });
             currentView = targetView;
-            // Ẩn tất cả các thông báo lỗi khi chuyển view
             document.querySelectorAll('.error-message').forEach(el => el.classList.add('hidden'));
         }
-
-        // Khởi tạo ban đầu
         window.onload = function() {
-            showForm(currentView); // Hiển thị Role View
+            showForm(currentView);
         };
 
-        // --- LOGIC AJAX XỬ LÝ ĐĂNG NHẬP ---
-
-        /**
-         * Xử lý AJAX cho các form (LOGIN)
-         */
         function handleAjaxSubmit(action, formId, errorElId, e) {
             e.preventDefault();
             const form = document.getElementById(formId);
             const errorElement = document.getElementById(errorElId);
             const params = new URLSearchParams(new FormData(form));
             params.append('action', action);
-
-            // Vô hiệu hóa nút Submit và hiển thị loading nếu cần
             const submitBtn = form.querySelector('.btn-submit');
             const originalText = submitBtn.textContent;
             submitBtn.textContent = 'Đang xử lý...';
             submitBtn.disabled = true;
-
-            // Ẩn lỗi cũ
             errorElement.classList.add('hidden');
             errorElement.textContent = '';
 
@@ -565,10 +483,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                     body: params
                 })
                 .then(response => {
-                    // Kích hoạt lại nút Submit
                     submitBtn.textContent = originalText;
                     submitBtn.disabled = false;
-                    
+
                     const contentType = response.headers.get("content-type");
                     if (contentType && contentType.indexOf("application/json") !== -1) {
                         return response.json();
@@ -582,7 +499,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                 .then(data => {
                     if (data.success) {
                         if (data.redirect) {
-                            // Chuyển hướng khi thành công
                             const currentDir = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
 
                             if (data.redirect.startsWith('/')) {
@@ -598,24 +514,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                     }
                 })
                 .catch(error => {
-                    // Kích hoạt lại nút Submit khi gặp lỗi
                     submitBtn.textContent = originalText;
                     submitBtn.disabled = false;
-                    
+
                     console.error('Lỗi mạng, server hoặc phản hồi không hợp lệ:', error);
                     errorElement.textContent = error.message.includes('Lỗi server') ? 'Lỗi server hoặc lỗi cú pháp PHP, hãy kiểm tra logs.' : 'Lỗi kết nối máy chủ hoặc phản hồi không hợp lệ.';
                     errorElement.classList.remove('hidden');
                 });
         }
-
-        // --- GẮN SỰ KIỆN SUBMIT CHO CÁC FORM ---
-
-        // 1. Employee Login
         document.getElementById('employee-login-form').addEventListener('submit', (e) => {
             handleAjaxSubmit('employee_login', 'employee-login-form', 'employee-auth-error', e);
         });
-
-        // 2. Admin Login (Đã đơn giản hóa)
         document.getElementById('admin-login-form').addEventListener('submit', (e) => {
             handleAjaxSubmit('admin_login', 'admin-login-form', 'admin-login-error', e);
         });

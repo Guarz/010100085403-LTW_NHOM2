@@ -34,17 +34,13 @@ if (isset($_POST['action'])) {
         if ($dbManager->deleteNhanVien($maNV)) {
             echo json_encode(['success' => true, 'message' => 'Xóa nhân viên thành công.']);
         } else {
-            $message = 'Lỗi: Không thể xóa nhân viên.';
-            if ($dbManager->db->errno == 1451) { 
-                $message .= ' (Ràng buộc khóa ngoại: Nhân viên này có thể quản lý sản phẩm hoặc liên quan đến dữ liệu khác).'; 
-            }
             echo json_encode(['success' => false, 'message' => $message]);
         }
         exit();
     }
 
     if (
-        ($_POST['action'] === 'update' && isset($_POST['MaNV'])) || 
+        ($_POST['action'] === 'update' && isset($_POST['MaNV'])) ||
         ($_POST['action'] === 'add')
     ) {
         if (!isset($_POST['HoTen'], $_POST['NgaySinh'], $_POST['DT'], $_POST['ViTri'], $_POST['NgayLam'], $_POST['Luong'], $_POST['TrangThai'])) {
@@ -52,21 +48,21 @@ if (isset($_POST['action'])) {
             exit();
         }
 
-        $maNV = $_POST['MaNV'] ?? null; 
+        $maNV = $_POST['MaNV'] ?? null;
         $hoTen = $_POST['HoTen'];
         $ngaySinh = $_POST['NgaySinh'];
-        $dt = $_POST['DT']; 
+        $dt = $_POST['DT'];
         $viTri = $_POST['ViTri'];
         $ngayLam = $_POST['NgayLam'];
         $luong = (float)$_POST['Luong'];
         $trangThai = $_POST['TrangThai'];
-        $matKhau = $_POST['MatKhau'] ?? null; 
+        $matKhau = $_POST['MatKhau'] ?? null;
 
         $success = false;
         if ($_POST['action'] === 'update') {
             $success = $dbManager->updateNhanVien($maNV, $hoTen, $ngaySinh, $dt, $viTri, $ngayLam, $luong, $matKhau, $trangThai);
             $msg = 'Cập nhật nhân viên thành công.';
-        } else { 
+        } else {
             if (empty($matKhau)) {
                 print json_encode(['success' => false, 'message' => 'Lỗi: Vui lòng nhập mật khẩu khi thêm nhân viên mới.']);
                 exit();
@@ -78,17 +74,11 @@ if (isset($_POST['action'])) {
         if ($success) {
             print json_encode(['success' => true, 'message' => $msg]);
         } else {
-            $errorMsg = 'Lỗi: Thao tác thất bại.';
-            if ($dbManager->db->errno == 1062) { 
-                $errorMsg = 'Lỗi: Dữ liệu bị trùng lặp (ví dụ: SĐT đã tồn tại).';
-            } else if ($dbManager->db->error) {
-                $errorMsg = 'Lỗi CSDL: ' . $dbManager->db->error;
-            }
             print json_encode(['success' => false, 'message' => $errorMsg]);
         }
         exit();
     }
-    
+
     echo json_encode(['success' => false, 'message' => 'Yêu cầu hành động không hợp lệ hoặc thiếu tham số.']);
     exit();
 }
@@ -487,14 +477,14 @@ $nhanVienArray = $nhanVienResult ? $nhanVienResult->fetch_all(MYSQLI_ASSOC) : []
 
                 <div class="form-group">
                     <label for="employee-id">Mã NV</label>
-                    <input type="text" id="employee-id" name="MaNV" required> 
+                    <input type="text" id="employee-id" name="MaNV" required>
                 </div>
 
                 <div class="form-group">
                     <label for="employee-name">Họ và Tên</label>
                     <input type="text" id="employee-name" name="HoTen" required>
                 </div>
-                
+
                 <div class="form-group" id="password-group">
                     <label for="employee-password">Mật khẩu (*Bắt buộc)</label>
                     <input type="password" id="employee-password" name="MatKhau" placeholder="Chỉ nhập khi thêm mới hoặc đổi mật khẩu">
@@ -586,12 +576,12 @@ $nhanVienArray = $nhanVienResult ? $nhanVienResult->fetch_all(MYSQLI_ASSOC) : []
             const passwordInput = document.getElementById('employee-password');
             const passwordLabel = document.querySelector('#password-group label');
 
-            maNVInput.readOnly = action === 'update'; 
-            
+            maNVInput.readOnly = action === 'update';
+
             if (action === 'update') {
                 passwordLabel.textContent = 'Mật khẩu (Để trống nếu không đổi)';
-                passwordInput.removeAttribute('required'); 
-                
+                passwordInput.removeAttribute('required');
+
                 maNVInput.value = data.MaNV;
                 document.getElementById('employee-name').value = data.HoTen;
                 document.getElementById('employee-dob').value = data.NgaySinh;
@@ -600,11 +590,11 @@ $nhanVienArray = $nhanVienResult ? $nhanVienResult->fetch_all(MYSQLI_ASSOC) : []
                 document.getElementById('employee-phone').value = data.DT;
                 document.getElementById('employee-startdate').value = data.NgayLam;
                 document.getElementById('employee-status').value = data.TrangThai;
-            } else { 
+            } else {
                 passwordLabel.textContent = 'Mật khẩu (*Bắt buộc)';
-                passwordInput.setAttribute('required', 'required'); 
-                maNVInput.readOnly = true; 
-                maNVInput.value = '(Tự động)'; 
+                passwordInput.setAttribute('required', 'required');
+                maNVInput.readOnly = true;
+                maNVInput.value = '(Tự động)';
             }
 
             document.getElementById('employee-form-overlay').style.display = 'flex';
@@ -612,7 +602,7 @@ $nhanVienArray = $nhanVienResult ? $nhanVienResult->fetch_all(MYSQLI_ASSOC) : []
 
         function logoutConfirm() {
             if (confirm("Bạn có chắc chắn muốn đăng xuất khỏi hệ thống không?")) {
-                const loginPage = "../login_admin.php"; 
+                const loginPage = "../login_admin.php";
                 window.location.replace(loginPage);
                 alert("Đã đăng xuất! Chuyển hướng tới trang Đăng nhập...");
             }

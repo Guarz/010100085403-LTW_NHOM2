@@ -25,7 +25,7 @@ if (isset($_POST['action'])) {
                     'MaSP' => $row['MaSP'],
                     'TenSP' => $row['TenSP'],
                     'SoLuong' => (int)$row['SoLuong'],
-                    'Gia' => formatCurrencyPHP($row['Gia']),
+                    'Gia' => $row['Gia'],
                     'MaKH' => $row['MaKH'],
                     'HoTen' => $row['HoTen']
                 ];
@@ -44,7 +44,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit();
 }
 
-$generalStats = $dbManager->getGeneralStats(); 
+$generalStats = $dbManager->getGeneralStats();
 $topSellingProductsResult = $dbManager->getTopSellingProducts();
 $topSpendingCustomersResult = $dbManager->getTopSpendingCustomers();
 
@@ -385,7 +385,7 @@ $chartData = array_column($monthlyRevenueData, 'revenue');
         }
 
         function openModal(id) {
-            document.getElementById(id).style.display = "flex"; 
+            document.getElementById(id).style.display = "flex";
         }
 
         function closeModal(id) {

@@ -41,11 +41,11 @@ if (isset($_POST['action'])) {
         if ($result) {
             while ($row = $result->fetch_assoc()) {
                 $tongTienSP_raw = (int)$row['SoLuong'] * (float)$row['Gia'];
-                $calculatedTotal += $tongTienSP_raw; 
+                $calculatedTotal += $tongTienSP_raw;
 
                 $details[] = [
                     'MaSP'     => htmlspecialchars($row['MaSP']),
-                    'TenSP'    => htmlspecialchars($row['TenSP']),  
+                    'TenSP'    => htmlspecialchars($row['TenSP']),
                     'SoLuong'  => (int)$row['SoLuong'],
                     'Gia'      => DatabaseManager::formatCurrencyPHP($row['Gia']),
                     'TongTienSP' => DatabaseManager::formatCurrencyPHP($tongTienSP_raw)
@@ -404,7 +404,7 @@ $totalOrders = $gioHangResult ? $gioHangResult->num_rows : 0;
                 modalDetails.innerHTML = 'Đang tải chi tiết...';
 
                 const originalTotal = target.closest('tr').querySelectorAll('td')[3].textContent;
-                modalTongTien.textContent = originalTotal; 
+                modalTongTien.textContent = originalTotal;
 
                 const formData = new URLSearchParams();
                 formData.append('action', 'view_details');

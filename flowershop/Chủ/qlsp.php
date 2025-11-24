@@ -44,7 +44,7 @@ if (isset($_POST['action'])) {
         if ($_POST['action'] === 'update') {
             $success = $dbManager->updateSanPham($maSP, $tenSP, $maLoai, $chiTiet, $donGia, $soLuong, $trangThai, $moTa, $maNV, $anh);
             $msg = 'Cập nhật sản phẩm thành công.';
-        } else { 
+        } else {
             $success = $dbManager->addSanPham($maSP, $tenSP, $maLoai, $chiTiet, $donGia, $soLuong, $trangThai, $moTa, $maNV, $anh);
             $msg = 'Thêm sản phẩm thành công.';
         }
@@ -588,14 +588,14 @@ $sanPhamResult = $dbManager->getListSanPham();
                             document.getElementById("form-action-type").value = "update";
 
                             document.getElementById("product-id").value = product.MaSP;
-                            document.getElementById("product-id").readOnly = true; 
+                            document.getElementById("product-id").readOnly = true;
                             document.getElementById("product-name").value = product.TenSP;
                             document.getElementById("product-maLoai").value = product.MaLoai;
                             document.getElementById("product-chiTiet").value = product.ChiTiet;
                             document.getElementById("product-price").value = product.DonGia;
                             document.getElementById("product-quantity").value = product.SoLuong;
 
-                            const statusValue = product.TrangThai; 
+                            const statusValue = product.TrangThai;
                             document.getElementById("product-status").value = statusValue;
 
                             document.getElementById("product-moTa").value = product.MoTa;

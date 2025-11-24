@@ -39,12 +39,6 @@ if (isset($_POST['action'])) {
         if ($dbManager->deleteTaiKhoanNV($maNV)) {
             echo json_encode(['success' => true, 'message' => 'Xóa tài khoản nhân viên thành công.']);
         } else {
-            $errorMsg = 'Lỗi: Không thể xóa tài khoản. Vui lòng kiểm tra log CSDL.';
-            if ($dbManager->db->errno == 1451) {
-                $errorMsg = 'Lỗi Khóa ngoại: Tài khoản này đang liên kết với dữ liệu khác (ví dụ: sản phẩm, đơn hàng).';
-            } else if ($dbManager->db->error) {
-                $errorMsg = 'Lỗi CSDL: ' . $dbManager->db->error;
-            }
             echo json_encode(['success' => false, 'message' => $errorMsg]);
         }
         exit();
@@ -64,7 +58,7 @@ if (isset($_POST['action'])) {
         if ($_POST['action'] === 'update') {
             $success = $dbManager->updateTaiKhoanNV($maNV, $taiKhoan, $matKhau);
             $msg = 'Cập nhật tài khoản thành công.';
-        } else { 
+        } else {
             if (empty($matKhau)) {
                 print json_encode(['success' => false, 'message' => 'Lỗi: Mật khẩu là bắt buộc khi thêm mới.']);
                 exit();
@@ -76,14 +70,6 @@ if (isset($_POST['action'])) {
         if ($success) {
             print json_encode(['success' => true, 'message' => $msg]);
         } else {
-            $errorMsg = 'Lỗi: Thao tác thất bại.';
-            if ($dbManager->db->errno == 1062) {
-                $errorMsg = 'Lỗi: Mã NV hoặc Tài khoản đã tồn tại (MaNV phải là duy nhất).';
-            } else if ($dbManager->db->errno == 1452) {
-                $errorMsg = 'Lỗi: Mã NV không hợp lệ (Có thể Mã NV đã tồn tại hoặc thiếu các trường dữ liệu bắt buộc khác).';
-            } else if ($dbManager->db->error) {
-                $errorMsg = 'Lỗi CSDL: ' . $dbManager->db->error;
-            }
             print json_encode(['success' => false, 'message' => $errorMsg]);
         }
         exit();
@@ -431,7 +417,7 @@ $taiKhoanArray = $taiKhoanResult ? $taiKhoanResult->fetch_all(MYSQLI_ASSOC) : []
                 maNVInput.value = data.MaNV;
                 document.getElementById('employee-username').value = data.taikhoan;
                 passInput.value = "";
-                passInput.required = false; 
+                passInput.required = false;
                 passLabel.textContent = "Mật Khẩu (Để trống nếu không đổi):";
             } else {
                 passInput.required = true;

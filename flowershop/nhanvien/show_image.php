@@ -1,5 +1,5 @@
 <?php
-include '../connect.php'; // đường dẫn đến file kết nối DB
+include '../connect.php';
 
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
@@ -9,7 +9,6 @@ if (isset($_GET['id'])) {
     if ($result && mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
         header("Content-Type: image/jpeg");
-        echo $row['Anh']; // hiển thị dữ liệu ảnh từ BLOB
+        echo $row['Anh'];
     }
 }
-?>

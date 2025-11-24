@@ -17,7 +17,6 @@ class DatabaseManager
 
         $this->db->set_charset("utf8mb4");
     }
-    //=================================== ĐƠN HÀNG =========================
     public function getListGioHang()
     {
         $sql = "SELECT 
@@ -89,7 +88,6 @@ class DatabaseManager
             return false;
         }
     }
-    //=================================== KHÁCH HÀNG =======================
     public function getListKhachHang($search = '')
     {
         $sql = "SELECT MaKH, HoTen, NgaySinh, DT, Email 
@@ -257,7 +255,6 @@ class DatabaseManager
         $stmt->close();
         return $details;
     }
-    //================================== NHÂN VIÊN =========================================
 
     public function getNhanVienById($maNV)
     {
@@ -330,8 +327,6 @@ class DatabaseManager
                 ORDER BY FIELD(ViTri, 'QuanLi') DESC, NgayLam DESC";
         return $this->db->query($sql);
     }
-
-    //=============================== TÀI KHOẢN NHÂN VIÊN =====================================
     public function getListTaiKhoanNV()
     {
         $sql = "SELECT MaNV, HoTen, ViTri, taikhoan, matkhau, created_at
@@ -407,7 +402,6 @@ class DatabaseManager
             ['timestamp' => '2025-10-23 15:40', 'action' => 'Đã thêm sản phẩm SP99.'],
         ];
     }
-    //================================ THỐNG KÊ ============================================
 
     public function getGeneralStats()
     {
@@ -503,7 +497,6 @@ class DatabaseManager
                 ORDER BY g.NgayDat DESC";
         return $this->db->query($sql);
     }
-    //======================================== QUẢN LÍ SẢN PHẨM ==================================   
     public function getListLoaiSanPham()
     {
         $sql = "SELECT MaLoai, TenLoai FROM loaisanpham ORDER BY MaLoai ASC";
@@ -614,16 +607,14 @@ class DatabaseManager
         $maNV,
         $anh = null
     ) {
-        // SQL cơ bản
         $sql = "INSERT INTO sanpham (MaSP, TenSP, MaLoai";
 
         $params = "ssi";
         $bindValues = [&$maSP, &$tenSP, &$maLoai];
 
-        // Nếu có ảnh
         if ($anh !== null) {
             $sql .= ", Anh";
-            $params .= "s";  // <-- BLOB should be bound as string
+            $params .= "s";
             $bindValues[] = &$anh;
         }
 
@@ -635,32 +626,21 @@ class DatabaseManager
         }
 
         $sql .= ", ?, ?, ?, ?, ?, ?)";
-
-        // Chuẩn hóa trạng thái
         $trangThaiValue = ($trangThai == 'in' || $trangThai == 'Còn hàng')
             ? 'ConHang'
             : 'HetHang';
 
         $donGiaStr = strval($donGia);
-
-        // Thêm các giá trị còn lại
         $params .= "ssissi";
-
         $bindValues[] = &$chiTiet;
         $bindValues[] = &$donGiaStr;
         $bindValues[] = &$soLuong;
         $bindValues[] = &$trangThaiValue;
         $bindValues[] = &$moTa;
         $bindValues[] = &$maNV;
-
-        // Chuẩn bị
         $stmt = $this->db->prepare($sql);
         if (!$stmt) return false;
-
-        // Bind
         $stmt->bind_param($params, ...$bindValues);
-
-        // Chạy
         $success = $stmt->execute();
         $stmt->close();
 
@@ -681,14 +661,10 @@ class DatabaseManager
         }
         return false;
     }
-    //======================================== UTILITY ==========================================
-    // Hàm format tiền tệ
     public static function formatCurrencyPHP($amount)
     {
         return number_format($amount, 0, ',', '.');
     }
-
-    // Hàm dịch trạng thái từ DB sang Tiếng Việt
     public static function translateTrangThai($status)
     {
         switch ($status) {
@@ -704,22 +680,18 @@ class DatabaseManager
                 return $status;
         }
     }
-    // Hàm dịch trạng thái
     public static function translateTrangThaiNV($status)
     {
         if ($status === 'DangLam') return 'Đang hoạt động';
         if ($status === 'DaNghi') return 'Đã nghỉ việc';
         return $status;
     }
-
-    // Hàm dịch Vị trí
     public static function translateViTri($role)
     {
         if ($role === 'QuanLi') return 'Quản lý';
         if ($role === 'NV') return 'Nhân viên';
         return $role;
     }
-    // --- Các hàm utility (Giữ nguyên) ---
     function stripUnicode($str)
     {
         if (!$str) return false;

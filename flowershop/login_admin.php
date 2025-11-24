@@ -1,10 +1,5 @@
 <?php
-// Tên file: login_admin.php (Đã tái cấu trúc và sửa lỗi)
 session_start();
-
-// =========================================================
-// CLASS 1: Quản lý Kết nối CSDL
-// =========================================================
 class Database
 {
     private $db;
@@ -16,11 +11,10 @@ class Database
     public function __construct()
     {
         try {
-            // Chỉ kết nối khi cần thiết
             $this->db = new mysqli($this->host, $this->user, $this->pass, $this->dbname);
             if ($this->db->connect_error) {
                 $_SESSION['system_error'] = "Lỗi hệ thống: Không thể kết nối CSDL.";
-                $this->db = null; // Đảm bảo db là null nếu kết nối thất bại
+                $this->db = null;
             } else {
                 $this->db->set_charset("utf8mb4");
             }
@@ -37,16 +31,10 @@ class Database
 
     public function closeConnection()
     {
-        if ($this->db && $this->db->ping()) {
-            $this->db->close();
-            $this->db = null;
-        }
+        $this->db->close();
+        $this->db = null;
     }
 }
-
-// =========================================================
-// CLASS 2: Quản lý Logic Xác thực (Admin Auth)
-// =========================================================
 class AdminAuth
 {
     private $db;
@@ -72,7 +60,6 @@ class AdminAuth
         }
 
         try {
-            // 1. Kiểm tra username đã tồn tại chưa
             $stmt_check = $this->db->prepare("SELECT username FROM admin WHERE username = ?");
             $stmt_check->bind_param("s", $username);
             $stmt_check->execute();
@@ -84,12 +71,9 @@ class AdminAuth
                 return false;
             }
             $stmt_check->close();
-
-            // 2. Thực hiện INSERT
             $role = 'admin';
             $sql = "INSERT INTO admin (username, email, password, role, fullname) VALUES (?, ?, ?, ?, ?)";
             $stmt = $this->db->prepare($sql);
-
             if (!$stmt) {
                 throw new Exception("Lỗi chuẩn bị truy vấn: " . $this->db->error);
             }
@@ -122,7 +106,6 @@ class AdminAuth
         $username = trim($username);
 
         try {
-            // 1. KIỂM TRA TÀI KHOẢN ADMIN
             $sql_admin = "SELECT username, fullname, password, role FROM admin WHERE username = ? LIMIT 1";
             $stmt_admin = $this->db->prepare($sql_admin);
             $stmt_admin->bind_param("s", $username);
@@ -132,7 +115,6 @@ class AdminAuth
             if ($result_admin->num_rows === 1) {
                 $user = $result_admin->fetch_assoc();
                 if ($password === $user['password']) {
-                    // Đăng nhập thành công
                     $_SESSION['admin_logged_in'] = true;
                     $_SESSION['admin_fullname'] = $user['fullname'];
                     $_SESSION['user_role'] = $user['role'];
@@ -152,22 +134,13 @@ class AdminAuth
         }
     }
 }
-
-// =========================================================
-// PHẦN 3: LOGIC CHẠY CHÍNH (MAIN EXECUTION)
-// =========================================================
-
-// Lấy tên file hiện tại để đặt vào form action, đảm bảo nó luôn đúng
 $current_file = basename(__FILE__);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // 1. Khởi tạo và kết nối CSDL
     $dbManager = new Database();
-    $db = $dbManager->getConnection(); // Lấy kết nối
+    $db = $dbManager->getConnection();
     $auth = new AdminAuth($db);
-
-    // 2. Xử lý hành động POST
     if (isset($_POST['action'])) {
         $action = $_POST['action'];
 
@@ -180,24 +153,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             );
         } else if ($action === 'login') {
             if ($auth->login($_POST['username'], $_POST['password'])) {
-                $dbManager->closeConnection(); // Đóng kết nối
+                $dbManager->closeConnection();
                 header("Location: chủ/qlsp.php");
                 exit();
             }
         }
     }
-
-    // 3. Đóng kết nối CSDL
     $dbManager->closeConnection();
-
-    // 4. Chuyển hướng chính nó sau khi xử lý POST
     header("Location: " . $current_file);
     exit();
 }
-
-// =========================================================
-// PHẦN 4: GIAO DIỆN HIỂN THỊ (HTML/CSS/JS)
-// =========================================================
 
 $is_register_success = isset($_SESSION['register_success']);
 $is_register_error = isset($_SESSION['register_error']);
@@ -215,8 +180,6 @@ $show_register_form = $is_register_error && !$is_system_error;
     <title>Đăng nhập Admin - Hoa Tươi Online</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <style>
-        /* CSS Giữ nguyên */
-        /* --- Định nghĩa biến màu --- */
         :root {
             --primary-pink: #e91e63;
             --light-pink: #ffd6e8;
@@ -384,9 +347,6 @@ $show_register_form = $is_register_error && !$is_system_error;
             margin-top: 20px;
         }
 
-        /* Xóa #register { display: none; } vì PHP sẽ kiểm soát display inline */
-
-        /* --- CSS cho Thông báo Lỗi/Thành công --- */
         .system-message {
             color: white;
             padding: 15px 20px;
@@ -404,19 +364,16 @@ $show_register_form = $is_register_error && !$is_system_error;
 
         .error-message {
             background: #e74c3c;
-            /* Đỏ cho lỗi */
         }
 
         .success-message {
             background: #2ecc71;
-            /* Xanh lá cho thành công */
         }
     </style>
 </head>
 
 <body>
     <?php
-    // Hiển thị thông báo (nếu có)
     if (isset($_SESSION['login_error'])) {
         echo '<p class="system-message error-message">' . $_SESSION['login_error'] . '</p>';
         unset($_SESSION['login_error']);
@@ -515,8 +472,6 @@ $show_register_form = $is_register_error && !$is_system_error;
             document.getElementById('register').style.display = 'none';
             document.getElementById('login').style.display = 'block';
         }
-
-        // Sau khi tải trang, nếu có lỗi đăng ký, hiển thị form đăng ký
         if (<?php echo $show_register_form ? 'true' : 'false'; ?>) {
             showRegister();
         } else {

@@ -1,74 +1,65 @@
-/* =========================================================
-   File: style_nv.css
-   Gộp và tùy chỉnh CSS cho giao diện Nhân viên (/nhanvien/)
-   ========================================================= */
-
-/* --- CSS CHUNG ---*/
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-}
-
-body {
+  }
+  
+  body {
     font-family: "Segoe UI", sans-serif;
     background: #f9f7f7;
     color: #333;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-}
-
-.content-wrapper {
+  }
+  
+  .content-wrapper {
     display: flex;
     flex: 1;
-}
-
-/* Sidebar - Menu dọc */
-.sidebar {
+  }
+  
+  .sidebar {
     width: 240px;
     background: #2c3e50;
     color: white;
     display: flex;
     flex-direction: column;
     padding: 15px 0;
-}
-
-/* Tên Shop & Logo */
-.shop-logo {
+  }
+  
+  .shop-logo {
     padding: 20px 25px;
     margin-bottom: 20px;
     text-align: center;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.logo-visual {
+  }
+  
+  .logo-visual {
     font-size: 36px;
     color: #ff66a3;
     margin-bottom: 5px;
     text-shadow: 0 0 5px #ff66a3, 0 0 10px #e91e63;
-}
-
-.logo-title {
+  }
+  
+  .logo-title {
     font-size: 24px;
     font-weight: 700;
     letter-spacing: 1.5px;
     margin: 0;
     color: #ffffff;
-}
-
-.accent-glow {
+  }
+  
+  .accent-glow {
     color: #ff66a3;
     font-weight: 800;
     text-shadow: 0 0 5px #ff66a3, 0 0 15px #e91e63, 0 0 20px #e91e63;
-}
-
-/* Các tab trong menu */
-.sidebar nav {
+  }
+  
+  .sidebar nav {
     flex-grow: 1;
-}
-
-.sidebar a {
+  }
+  
+  .sidebar a {
     display: flex;
     align-items: center;
     gap: 15px;
@@ -78,28 +69,27 @@ body {
     transition: background 0.3s, color 0.3s;
     border-left: 4px solid transparent;
     font-size: 16px;
-}
-
-.sidebar a:hover {
+  }
+  
+  .sidebar a:hover {
     background-color: rgba(255, 255, 255, 0.05);
     color: white;
     border-left: 4px solid #3498db;
-}
-
-.sidebar a.active {
+  }
+  
+  .sidebar a.active {
     background-color: rgba(0, 0, 0, 0.2);
     border-left: 4px solid #e91e63;
     color: white;
     font-weight: 600;
-}
-
-.sidebar a i {
+  }
+  
+  .sidebar a i {
     width: 20px;
     text-align: center;
-}
-
-/* Main content */
-.main {
+  }
+  
+  .main {
     flex: 1;
     background: white;
     border-top-left-radius: 20px;
@@ -108,36 +98,34 @@ body {
     padding: 25px;
     overflow-y: auto;
     position: relative;
-}
-
-.header {
+  }
+  
+  .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
-}
-
-.header h1 {
+  }
+  
+  .header h1 {
     color: #d63384;
     font-size: 24px;
-}
-
-/* Footer */
-footer {
+  }
+  
+  footer {
     background: #2c3136;
     color: white;
     padding: 10px;
     font-size: 14px;
-}
-
-.footer-container {
+  }
+  
+  .footer-container {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-}
-
-/* Nút Đăng xuất */
-.sidebar-logout-btn {
+  }
+  
+  .sidebar-logout-btn {
     margin-top: auto;
     margin-bottom: 20px;
     margin-left: auto;
@@ -157,10 +145,9 @@ footer {
     font-weight: 400;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
-}
-
-/* --- Bảng (QLSP và QLĐH) --- */
-table {
+  }
+  
+  table {
     width: 100%;
     border-collapse: collapse;
     background-color: white;
@@ -169,67 +156,76 @@ table {
     font-size: 14px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     border-top: 5px solid #d63384;
-}
-
-th,
-td {
+  }
+  
+  th,
+  td {
     padding: 12px 10px;
     text-align: left;
     border-bottom: 1px solid #f2f2f2;
-}
-
-th {
+  }
+  
+  th {
     background-color: #fce4ec;
     color: #d63384;
     font-weight: 600;
-}
-
-tr:hover {
+  }
+  
+  tr:hover {
     background-color: #fdf8fa;
-}
-
-.empty-row td {
+  }
+  
+  .empty-row td {
     background-color: #f8f8f8;
     font-style: italic;
-}
-
-/* Trạng thái */
-.status-badge {
+  }
+  
+  .status-badge {
     font-weight: 500;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 12px;
     display: inline-block;
-}
-
-/* Trạng thái Sản phẩm */
-.status-in {
+  }
+  
+  .status-in {
     background-color: #e8f5e9;
     color: #388e3c;
     border: 1px solid #a5d6a7;
-}
-
-.status-out {
+  }
+  
+  .status-out {
     background-color: #ffebee;
     color: #d32f2f;
     border: 1px solid #ef9a9a;
-}
-
-/* Trạng thái Đơn hàng */
-.status-pending { background-color: #fff3cd; color: #856404; } /* ChuaThanhToan */
-.status-success { background-color: #d4edda; color: #155724; } /* DaThanhToan */
-.status-shipping { background-color: #d1ecf1; color: #0c5460; } /* DangGiao */
-.status-cancelled { background-color: #f8d7da; color: #721c24; } /* DaHuy */
-
-.product-img-thumb {
+  }
+  
+  .status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  .status-success {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  .status-shipping {
+    background-color: #d1ecf1;
+    color: #0c5460;
+  }
+  .status-cancelled {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .product-img-thumb {
     width: 50px;
     height: 50px;
     object-fit: cover;
     border-radius: 4px;
     border: 1px solid #eee;
-}
-
-.action-btn {
+  }
+  
+  .action-btn {
     background-color: #ff66a3;
     color: white;
     border: none;
@@ -239,26 +235,23 @@ tr:hover {
     transition: background 0.3s;
     font-size: 13px;
     margin-right: 5px;
-}
-
-.action-btn.view-btn {
+  }
+  
+  .action-btn.view-btn {
     background-color: #3498db;
-}
-
-.action-btn:hover {
+  }
+  
+  .action-btn:hover {
     background-color: #e91e63;
-}
-
-
-/* --- CSS QL Khách hàng (khachhang_nv.html) --- */
-.stats-grid {
+  }
+  .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
     margin-bottom: 30px;
-}
-
-.stat-card {
+  }
+  
+  .stat-card {
     background: linear-gradient(135deg, #fce4ec, #fff8f8);
     border-radius: 15px;
     padding: 20px;
@@ -267,35 +260,35 @@ tr:hover {
     justify-content: space-between;
     align-items: center;
     border-left: 5px solid #e91e63;
-}
-
-.stat-card .icon-box {
+  }
+  
+  .stat-card .icon-box {
     background: #ffcdd2;
     color: #e91e63;
     padding: 15px;
     border-radius: 50%;
     font-size: 24px;
     line-height: 1;
-}
-
-.stat-card .info p {
+  }
+  
+  .stat-card .info p {
     margin: 0;
     color: #555;
     font-size: 14px;
-}
-
-.stat-card .info strong {
+  }
+  
+  .stat-card .info strong {
     font-size: 32px;
     color: #d63384;
     display: block;
     margin-top: 5px;
-}
-
-.customer-list {
+  }
+  
+  .customer-list {
     padding-top: 10px;
-}
-
-.empty-state {
+  }
+  
+  .empty-state {
     text-align: center;
     padding: 50px 20px;
     background-color: #fff0f5;
@@ -303,9 +296,10 @@ tr:hover {
     border: 2px dashed #ffc0cb;
     color: #e91e63;
     margin-top: 20px;
-}
-
-.empty-state i {
+  }
+  
+  .empty-state i {
     font-size: 40px;
     margin-bottom: 15px;
-}
+  }
+  
