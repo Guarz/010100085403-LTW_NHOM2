@@ -471,6 +471,13 @@ $sanPhamResult = $dbManager->getListSanPham();
             </div>
         </div>
     </footer>
+    <script>
+        function logoutConfirm() {
+            if (confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
+                window.location.replace("../logout.php");
+            }
+        }
+    </script>
 </body>
 
 </html>
