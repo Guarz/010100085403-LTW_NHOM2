@@ -472,15 +472,6 @@ $sanPhamResult = $dbManager->getListSanPham();
         </div>
     </footer>
     <script>
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('vi-VN').format(amount);
-        }
-
-        function toggleSidebar() {
-            const body = document.body;
-            body.classList.toggle("sidebar-visible");
-        }
-
         function closeForm() {
             document.getElementById("product-form-overlay").style.display = "none";
         }
@@ -516,7 +507,7 @@ $sanPhamResult = $dbManager->getListSanPham();
             const formData = new FormData(this);
             formData.append('action', actionType);
 
-            fetch('qlsp.php', {
+            fetch('qlsp_nv.php', {
                     method: 'POST',
                     body: formData
                 })
@@ -546,7 +537,7 @@ $sanPhamResult = $dbManager->getListSanPham();
                     deleteData.append('action', 'delete');
                     deleteData.append('MaSP', maSP);
 
-                    fetch('qlsp.php', {
+                    fetch('qlsp_nv.php', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -566,13 +557,12 @@ $sanPhamResult = $dbManager->getListSanPham();
                         });
                 }
             }
-
             if (target.classList.contains("edit-btn")) {
                 const fetchDetails = new URLSearchParams();
                 fetchDetails.append('action', 'get_details');
                 fetchDetails.append('MaSP', maSP);
 
-                fetch('qlsp.php', {
+                fetch('qlsp_nv.php', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'
@@ -623,11 +613,8 @@ $sanPhamResult = $dbManager->getListSanPham();
         });
 
         function logoutConfirm() {
-            if (confirm("Bạn có chắc chắn muốn đăng xuất khỏi hệ thống không?")) {
-                const loginPage = "/flowershop/Role_login.php";
-                window.history.replaceState(null, document.title, loginPage);
-                window.location.replace(loginPage);
-                alert("Đã đăng xuất! Chuyển hướng tới trang Đăng nhập...");
+            if (confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
+                window.location.replace("../logout.php");
             }
         }
     </script>
