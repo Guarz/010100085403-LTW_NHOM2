@@ -472,9 +472,162 @@ $sanPhamResult = $dbManager->getListSanPham();
         </div>
     </footer>
     <script>
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN').format(amount);
+        }
+
+        function toggleSidebar() {
+            const body = document.body;
+            body.classList.toggle("sidebar-visible");
+        }
+
+        function closeForm() {
+            document.getElementById("product-form-overlay").style.display = "none";
+        }
+
+        function addProduct() {
+            document.getElementById("product-form").reset();
+            document.querySelector(".product-form-container h2").textContent = "Thêm Sản phẩm mới";
+            document.getElementById("form-action-type").value = "add";
+            document.getElementById("product-id").readOnly = false;
+
+            document.getElementById("preview-image").style.display = "none";
+            document.getElementById("product-form-overlay").style.display = "flex";
+        }
+
+        document.getElementById("product-image")?.addEventListener("change", function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    imageDataUrl = event.target.result;
+                    const preview = document.getElementById("preview-image");
+                    preview.src = imageDataUrl;
+                    preview.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById("product-form").addEventListener("submit", function(e) {
+            e.preventDefault();
+            const actionType = document.getElementById("form-action-type").value;
+
+            const formData = new FormData(this);
+            formData.append('action', actionType);
+
+            fetch('qlsp.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.success) {
+                        closeForm();
+                        window.location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi mạng hoặc server:', error);
+                    alert('Có lỗi xảy ra trong quá trình lưu dữ liệu.');
+                });
+        });
+
+        document.getElementById("product-table").addEventListener("click", function(e) {
+            const target = e.target;
+            const maSP = target.getAttribute('data-id');
+
+            if (!maSP) return;
+
+            if (target.classList.contains("delete-btn")) {
+                if (confirm(`Bạn có chắc chắn muốn xóa sản phẩm Mã: ${maSP} không? (Sẽ xóa cả các mục liên quan trong đơn hàng)`)) {
+                    const deleteData = new URLSearchParams();
+                    deleteData.append('action', 'delete');
+                    deleteData.append('MaSP', maSP);
+
+                    fetch('qlsp.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: deleteData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            alert(data.message);
+                            if (data.success) {
+                                window.location.reload();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Lỗi xóa:', error);
+                            alert('Lỗi: Lỗi mạng hoặc server không phản hồi đúng định dạng JSON.');
+                        });
+                }
+            }
+
+            if (target.classList.contains("edit-btn")) {
+                const fetchDetails = new URLSearchParams();
+                fetchDetails.append('action', 'get_details');
+                fetchDetails.append('MaSP', maSP);
+
+                fetch('qlsp.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: fetchDetails
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const product = data.data;
+
+                            document.querySelector(".product-form-container h2").textContent = "Cập nhật Sản phẩm";
+                            document.getElementById("form-action-type").value = "update";
+
+                            document.getElementById("product-id").value = product.MaSP;
+                            document.getElementById("product-id").readOnly = true;
+                            document.getElementById("product-name").value = product.TenSP;
+                            document.getElementById("product-maLoai").value = product.MaLoai;
+                            document.getElementById("product-chiTiet").value = product.ChiTiet;
+                            document.getElementById("product-price").value = product.DonGia;
+                            document.getElementById("product-quantity").value = product.SoLuong;
+
+                            const statusValue = product.TrangThai;
+                            document.getElementById("product-status").value = statusValue;
+
+                            document.getElementById("product-moTa").value = product.MoTa;
+                            document.getElementById("product-maNV").value = product.MaNV;
+
+                            const preview = document.getElementById("preview-image");
+                            if (product.Anh) {
+                                preview.src = 'data:image/jpeg;base64,' + product.Anh;
+                                preview.style.display = "block";
+                            } else {
+                                preview.src = '../images/no_image.png';
+                                preview.style.display = "block";
+                            }
+
+                            document.getElementById("product-form-overlay").style.display = "flex";
+                        } else {
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Lỗi tải chi tiết:', error);
+                        alert('Có lỗi xảy ra khi tải chi tiết sản phẩm.');
+                    });
+            }
+        });
+
         function logoutConfirm() {
-            if (confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
-                window.location.replace("../logout.php");
+            if (confirm("Bạn có chắc chắn muốn đăng xuất khỏi hệ thống không?")) {
+                const loginPage = "/flowershop/Role_login.php";
+                window.history.replaceState(null, document.title, loginPage);
+                window.location.replace(loginPage);
+                alert("Đã đăng xuất! Chuyển hướng tới trang Đăng nhập...");
             }
         }
     </script>
