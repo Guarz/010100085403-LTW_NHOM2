@@ -352,13 +352,6 @@ $currentAdminName = $_SESSION['admin_fullname'] ?? 'Quản trị viên chính';
             </div>
 
             <div class="filter-section">
-                <form method="GET" action="admin_khachhang.php">
-                    <input type="text" name="search" placeholder="Tìm kiếm theo Tên, Mã KH, SĐT..." value="<?php echo htmlspecialchars($searchQuery); ?>">
-                    <button type="submit" class="action-btn" style="background-color: #333; margin-left: 10px;">Tìm kiếm</button>
-                    <?php if ($searchQuery): ?>
-                        <a href="admin_khachhang.php" class="action-btn" style="background-color: #aaa;">Xóa Lọc</a>
-                    <?php endif; ?>
-                </form>
                 <button class="action-btn" onclick="openModal('add')" style="background-color: #007bff;">+ Thêm Khách hàng</button>
             </div>
 
